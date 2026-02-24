@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scandic — Strategic Customer Journey Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── DESIGN TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --brand-primary:  #8B1A4A;
+      --brand-accent:   #C9326A;
+      --text-primary:   #1A1A1A;
+      --text-secondary: #5A5A6A;
+      --text-muted:     #9A9AA8;
+      --border:         #E4E0E8;
+      --hero-amber:     #C9860A;
+      --gap-orange:     #E05A2B;
+      --success-green:  #2A7A4B;
+      --page-bg:        #F5F4F2;
+      --canvas-bg:      #FFFFFF;
+      --label-bg:       #F0EDF3;
+      --col-width:      320px;
+      --label-width:    180px;
+      --sticky-nav-h:   48px;
+      --card-radius:    10px;
+      --tag-radius:     6px;
+    }
+
+    /* ── RESET ─────────────────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--page-bg);
+      color: var(--text-primary);
+    }
+
+    /* ── STICKY NAV ────────────────────────────────────────────────── */
+    #sticky-nav {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: var(--sticky-nav-h);
+      background: var(--brand-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    #sticky-nav.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sticky-nav__brand {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #sticky-hm-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 4px 12px;
+    }
+
+    /* ── PAGE HEADER ───────────────────────────────────────────────── */
+    #page-header {
+      padding: 40px 28px 32px;
+      background: var(--canvas-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    #meta-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--brand-primary);
+      line-height: 1.2;
+    }
+    #meta-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    #where-to-win-band {
+      margin-top: 22px;
+      padding: 16px 20px;
+      background: #FDF6F9;
+      border-left: 5px solid var(--brand-primary);
+      border-radius: 0 var(--card-radius) var(--card-radius) 0;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text-secondary);
+    }
+    #where-to-win-label {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-primary);
+      margin-bottom: 6px;
+    }
+    #hm-nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    /* ── PILLS ─────────────────────────────────────────────────────── */
+    .hm-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--canvas-bg);
+      border: 2px solid var(--brand-primary);
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brand-primary);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .hm-pill:hover {
+      background: var(--brand-primary);
+      color: #fff;
+    }
+    .hm-pill--compact {
+      padding: 4px 12px;
+      font-size: 11px;
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
+    }
+    .hm-pill--compact:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* ── SCROLL HINT ───────────────────────────────────────────────── */
+    #scroll-hint {
+      position: fixed;
+      right: 16px;
+      bottom: 24px;
+      background: var(--brand-primary);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    #scroll-hint.hidden {
+      opacity: 0;
+    }
+
+    /* ── CANVAS ────────────────────────────────────────────────────── */
+    #canvas-wrapper {
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── CSS GRID ──────────────────────────────────────────────────── */
+    #cjm-grid {
+      display: grid;
+      grid-template-columns: var(--label-width) repeat(7, var(--col-width));
+      min-width: calc(var(--label-width) + 7 * var(--col-width));
+      background: var(--canvas-bg);
+    }
+
+    /* ── BASE CELL ─────────────────────────────────────────────────── */
+    .cell {
+      padding: 14px 16px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── ROW 1 — STAGE HEADERS ─────────────────────────────────────── */
+    .cell--stage-header {
+      background: var(--brand-primary);
+      color: #fff;
+      position: sticky;
+      top: var(--sticky-nav-h);
+      z-index: 20;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      border-right: 1px solid rgba(255,255,255,0.15);
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .stage-number-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .stage-short-label {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding-top: 5px;
+    }
+
+    /* ── LABEL COLUMN ──────────────────────────────────────────────── */
+    .cell--label {
+      background: var(--label-bg);
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-secondary);
+      border-right: 2px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 16px;
+    }
+    /* Corner cell: both sticky */
+    .cell--label.cell--stage-header {
+      z-index: 30;
+      background: #6B1238;
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      align-items: flex-end;
+      padding-bottom: 14px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* ── ROW 2 — CUSTOMER SAYS ─────────────────────────────────────── */
+    .cell--customer-says {
+      background: #FFF8F0;
+      font-style: italic;
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.45;
+    }
+
+    /* ── ROW 3 — STAGE COMPLETE WHEN ──────────────────────────────── */
+    .cell--complete-when {
+      background: #F0EEF5;
+    }
+    .complete-when-box {
+      border-left: 3px solid var(--brand-primary);
+      padding: 10px 14px;
+      border-radius: 0 var(--card-radius) var(--card-radius) 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    /* ── ROW 4 — SUCCESS LOOKS LIKE ────────────────────────────────── */
+    .cell--success {
+      background: #F0FAF4;
+    }
+    .success-box {
+      border-left: 3px solid var(--success-green);
+      padding: 10px 14px;
+      border-radius: 0 var(--card-radius) var(--card-radius) 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+    }
+    .success-check {
+      color: var(--success-green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── ROW 5 — KEY OUTCOMES ──────────────────────────────────────── */
+    .cell--outcomes {
+      background: var(--canvas-bg);
+      display: flex;
+      flex-direction: column;
+    }
+    .outcomes-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+    }
+    .outcomes-list li {
+      font-size: 13px;
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+    .outcomes-list li::before {
+      content: "•";
+      color: var(--brand-primary);
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+    .evidence-footnote {
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      margin-top: 10px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    /* ── ROW 6 — HERO MOMENT ───────────────────────────────────────── */
+    .cell--hero {
+      background: var(--canvas-bg);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .hm-card {
+      border: 2px solid var(--hero-amber);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      background: #FFFBF0;
+    }
+    .hm-card--adjacent {
+      border-style: dashed;
+      border-radius: var(--card-radius);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--hero-amber);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFBF0;
+    }
+    /* HM card header */
+    .hm-header {
+      background: var(--hero-amber);
+      color: #fff;
+      padding: 10px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hm-icon { font-size: 22px; flex-shrink: 0; }
+    .hm-id {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      opacity: 0.85;
+      padding-top: 4px;
+      white-space: nowrap;
+    }
+    .hm-title {
+      font-size: 14px;
+      font-weight: 700;
+      flex: 1;
+      line-height: 1.3;
+    }
+    .feasibility-pill {
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 2px 8px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    /* HM card body */
+    .hm-body {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .hm-promise {
+      font-style: italic;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .hm-value-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .hm-value-list {
+      list-style: none;
+      padding: 0;
+    }
+    .hm-value-list li {
+      font-size: 12px;
+      line-height: 1.4;
+      padding-left: 12px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .hm-value-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--hero-amber);
+    }
+    .hm-great-list {
+      list-style: decimal;
+      padding-left: 16px;
+    }
+    .hm-great-list li {
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .hm-failure-box {
+      background: #FFF0ED;
+      border-radius: var(--tag-radius);
+      padding: 8px 12px;
+      list-style: none;
+    }
+    .hm-failure-box li {
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      padding-left: 18px;
+      position: relative;
+    }
+    .hm-failure-box li::before {
+      content: "⚠";
+      position: absolute;
+      left: 0;
+      font-size: 11px;
+    }
+    details.hm-evidence summary {
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--brand-primary);
+      list-style: none;
+      user-select: none;
+    }
+    details.hm-evidence summary::-webkit-details-marker { display: none; }
+    details.hm-evidence[open] summary::before { content: "▾ "; }
+    details.hm-evidence:not([open]) summary::before { content: "▸ "; }
+    .hm-evidence-list {
+      margin-top: 6px;
+      padding-left: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .hm-evidence-list li { margin-bottom: 3px; line-height: 1.4; }
+
+    /* Flash animation on scroll-to */
+    @keyframes amber-flash {
+      0%   { box-shadow: 0 0 0 0 rgba(201,134,10,0.85); }
+      70%  { box-shadow: 0 0 0 14px rgba(201,134,10,0); }
+      100% { box-shadow: 0 0 0 0 rgba(201,134,10,0); }
+    }
+    .hm-card--flash {
+      animation: amber-flash 0.75s ease-out;
+    }
+
+    /* ── ROW 7 — SCORECARD ─────────────────────────────────────────── */
+    .cell--scorecard {
+      background: var(--canvas-bg);
+    }
+    .scorecard-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scorecard-hm-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--hero-amber);
+      padding: 4px 0 2px;
+      border-bottom: 1px solid #EDD89A;
+      margin-bottom: 4px;
+    }
+    .scorecard-stack + .scorecard-stack {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 2px dashed var(--border);
+    }
+    .metric-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 6px 8px;
+      border-radius: var(--tag-radius);
+      border: 1px solid var(--border);
+    }
+    .metric-row--lagging  { background: #EDF7F0; }
+    .metric-row--leading  { background: var(--canvas-bg); }
+    .metric-row--health   { background: #EDF4FB; }
+    .metric-type-tag {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .metric-type-tag--lagging { background: var(--success-green); color: #fff; }
+    .metric-type-tag--leading { background: var(--border); color: var(--text-secondary); }
+    .metric-type-tag--health  { background: #2B5EA7; color: #fff; }
+    .metric-name { font-size: 12px; font-weight: 500; line-height: 1.4; }
+    .metric-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .scorecard-gap-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 6px 0 0;
+      font-style: italic;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+    .no-hero-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 12px 8px;
+      text-align: center;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* ── ROW 8 — MEASUREMENT GAPS ──────────────────────────────────── */
+    .cell--meas-gap {
+      background: var(--canvas-bg);
+    }
+    .meas-gap-box {
+      border-left: 3px solid var(--gap-orange);
+      padding: 10px 14px;
+      border-radius: 0 var(--card-radius) var(--card-radius) 0;
+      background: #FFF5F2;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+    .meas-gap-box + .meas-gap-box { margin-top: 8px; }
+
+    /* ── ROW 9 — WORKSHOP QUESTIONS ────────────────────────────────── */
+    .cell--workshop {
+      background: var(--canvas-bg);
+    }
+    .workshop-gap-item {
+      border-left: 3px solid var(--brand-primary);
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      background: #F7F5FA;
+      border-radius: 0 var(--card-radius) var(--card-radius) 0;
+    }
+    .workshop-gap-item:last-child { margin-bottom: 0; }
+    .workshop-gap-item__title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-primary);
+    }
+    .workshop-gap-item__detail {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* ── PRINT ─────────────────────────────────────────────────────── */
+    @media print {
+      @page { size: A3 landscape; margin: 12mm; }
+      #sticky-nav, #scroll-hint, #hm-nav-pills { display: none !important; }
+      #canvas-wrapper { overflow: visible !important; }
+      #cjm-grid { min-width: unset !important; }
+      .cell--stage-header, .cell--label { position: static !important; box-shadow: none !important; }
+      details.hm-evidence { display: block !important; }
+      details.hm-evidence summary { display: none !important; }
+      details.hm-evidence .hm-evidence-list { display: block !important; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STICKY NAV -->
+  <nav id="sticky-nav" aria-hidden="true">
+    <span class="sticky-nav__brand">Scandic CJM</span>
+    <div id="sticky-hm-pills"></div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header id="page-header">
+    <h1 id="meta-title"></h1>
+    <p id="meta-subtitle"></p>
+    <div id="where-to-win-band">
+      <div id="where-to-win-label">Where to Win — Strategic Theme</div>
+      <div id="where-to-win-text"></div>
+    </div>
+    <nav id="hm-nav-pills" aria-label="Jump to Hero Moment"></nav>
+  </header>
+
+  <!-- SCROLL HINT -->
+  <div id="scroll-hint" aria-hidden="true">Scroll &#x2192;</div>
+
+  <!-- CANVAS -->
+  <div id="canvas-wrapper">
+    <div id="cjm-grid"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <script>
+    // ── CONFIG ──────────────────────────────────────────────────────
+    const YAML_URL = 'scandic_framework.yaml';
+
+    // Workshop gap id → stage id (not in YAML; hardcoded mapping)
+    const GAP_STAGE_MAP = { 1:1, 2:2, 3:5, 4:7, 5:5, 6:7, 7:1, 8:4 };
+
+    // ── HELPERS ─────────────────────────────────────────────────────
+    function safe(val) {
+      return (val !== null && val !== undefined && val !== '') ? val : '—';
+    }
+
+    function makeEl(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
+    }
+
+    function makeCell(extraClasses) {
+      return makeEl('div', ['cell'].concat(extraClasses || []).join(' '));
+    }
+
+    function makeLabelCell(text, extraClasses) {
+      const cell = makeCell(['cell--label'].concat(extraClasses || []));
+      cell.appendChild(makeEl('span', null, text));
+      return cell;
+    }
+
+    // ── LOAD ─────────────────────────────────────────────────────────
+    async function loadData() {
+      const res = await fetch(YAML_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + YAML_URL);
+      const text = await res.text();
+      return jsyaml.load(text);
+    }
+
+    // ── PREPROCESS ───────────────────────────────────────────────────
+    function preprocessData(raw) {
+      const { meta, stages, hero_moments, scorecards, workshop_gaps } = raw;
+
+      // stageId → [HM objects] — ARRAY because stage 5 has two primaries (HM3 + HM4)
+      const hmByPrimaryStage = {};
+      hero_moments.forEach(function(hm) {
+        if (!hmByPrimaryStage[hm.primary_stage]) hmByPrimaryStage[hm.primary_stage] = [];
+        hmByPrimaryStage[hm.primary_stage].push(hm);
+      });
+
+      // stageId → [HM objects] for adjacent stages
+      const adjacentByStage = {};
+      hero_moments.forEach(function(hm) {
+        (hm.adjacent_stages || []).forEach(function(sid) {
+          if (!adjacentByStage[sid]) adjacentByStage[sid] = [];
+          adjacentByStage[sid].push(hm);
+        });
+      });
+
+      // hmId → scorecard
+      const scorecardByHM = {};
+      scorecards.forEach(function(sc) { scorecardByHM[sc.hero_moment_id] = sc; });
+
+      // stageId → [gap objects]
+      const gapsByStage = {};
+      workshop_gaps.forEach(function(gap) {
+        const sid = GAP_STAGE_MAP[gap.id];
+        if (sid) {
+          if (!gapsByStage[sid]) gapsByStage[sid] = [];
+          gapsByStage[sid].push(gap);
+        }
+      });
+
+      return { meta, stages, hero_moments, scorecards, hmByPrimaryStage, adjacentByStage, scorecardByHM, gapsByStage };
+    }
+
+    // ── HM CARD BUILDERS ─────────────────────────────────────────────
+    function buildFullHMCard(hm) {
+      const card = makeEl('div', 'hm-card');
+      card.id = 'hm-card-' + hm.id;
+
+      // Header
+      const header = makeEl('div', 'hm-header');
+      header.appendChild(makeEl('span', 'hm-icon', hm.icon || ''));
+      header.appendChild(makeEl('span', 'hm-id', 'HM' + hm.id));
+      header.appendChild(makeEl('span', 'hm-title', safe(hm.title)));
+      if (hm.feasibility_note) {
+        header.appendChild(makeEl('span', 'feasibility-pill', hm.feasibility_note));
+      }
+      card.appendChild(header);
+
+      // Body
+      const body = makeEl('div', 'hm-body');
+
+      if (hm.customer_promise) {
+        body.appendChild(makeEl('p', 'hm-promise', hm.customer_promise.trim()));
+      }
+
+      // Why it matters — customer & business value
+      [['Customer value', hm.customer_value], ['Business value', hm.business_value]].forEach(function(pair) {
+        const label = pair[0], items = pair[1];
+        if (!items || !items.length) return;
+        const wrap = makeEl('div');
+        wrap.appendChild(makeEl('div', 'hm-value-label', label));
+        const ul = makeEl('ul', 'hm-value-list');
+        items.forEach(function(v) { ul.appendChild(makeEl('li', null, v)); });
+        wrap.appendChild(ul);
+        body.appendChild(wrap);
+      });
+
+      // What great looks like
+      if (hm.what_great_looks_like && hm.what_great_looks_like.length) {
+        body.appendChild(makeEl('div', 'hm-value-label', 'What great looks like'));
+        const ol = makeEl('ol', 'hm-great-list');
+        hm.what_great_looks_like.forEach(function(item) { ol.appendChild(makeEl('li', null, item)); });
+        body.appendChild(ol);
+      }
+
+      // Failure modes
+      if (hm.failure_modes && hm.failure_modes.length) {
+        body.appendChild(makeEl('div', 'hm-value-label', 'Failure modes'));
+        const ul = makeEl('ul', 'hm-failure-box');
+        hm.failure_modes.forEach(function(fm) { ul.appendChild(makeEl('li', null, fm)); });
+        body.appendChild(ul);
+      }
+
+      // Key evidence (collapsible)
+      if (hm.key_evidence && hm.key_evidence.length) {
+        const details = makeEl('details', 'hm-evidence');
+        details.appendChild(makeEl('summary', null, 'Key evidence (' + hm.key_evidence.length + ')'));
+        const ul = makeEl('ul', 'hm-evidence-list');
+        hm.key_evidence.forEach(function(ev) { ul.appendChild(makeEl('li', null, ev)); });
+        details.appendChild(ul);
+        body.appendChild(details);
+      }
+
+      card.appendChild(body);
+      return card;
+    }
+
+    function buildAdjacentPill(hm) {
+      const pill = makeEl('div', 'hm-card hm-card--adjacent');
+      pill.textContent = '\u2194 Adjacent to HM' + hm.id + ': ' + safe(hm.title);
+      return pill;
+    }
+
+    // ── ROW RENDERERS ─────────────────────────────────────────────────
+
+    function renderRowStageHeaders(grid, data) {
+      const corner = makeLabelCell('Journey Stage', ['cell--stage-header']);
+      grid.appendChild(corner);
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--stage-header']);
+        cell.id = 'stage-col-' + stage.id;
+        const circle = makeEl('div', 'stage-number-circle', String(stage.id));
+        const label  = makeEl('span', 'stage-short-label', safe(stage.short_label));
+        cell.appendChild(circle);
+        cell.appendChild(label);
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowCustomerSays(grid, data) {
+      grid.appendChild(makeLabelCell('Customer says'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--customer-says']);
+        cell.textContent = '\u201c' + safe(stage.customer_language) + '\u201d';
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowCompleteWhen(grid, data) {
+      grid.appendChild(makeLabelCell('Stage complete when\u2026'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--complete-when']);
+        if (stage.complete_when) {
+          cell.appendChild(makeEl('div', 'complete-when-box', stage.complete_when));
+        } else {
+          cell.textContent = '\u2014';
+        }
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowSuccess(grid, data) {
+      grid.appendChild(makeLabelCell('Success looks like'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--success']);
+        if (stage.success_statement) {
+          const box = makeEl('div', 'success-box');
+          box.appendChild(makeEl('span', 'success-check', '\u2713'));
+          box.appendChild(makeEl('span', null, stage.success_statement));
+          cell.appendChild(box);
+        } else {
+          cell.textContent = '\u2014';
+        }
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowOutcomes(grid, data) {
+      grid.appendChild(makeLabelCell('What we must deliver'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--outcomes']);
+        const outcomes = stage.key_outcomes || [];
+        if (outcomes.length) {
+          const ul = makeEl('ul', 'outcomes-list');
+          outcomes.forEach(function(o) { ul.appendChild(makeEl('li', null, o)); });
+          cell.appendChild(ul);
+        }
+        if (stage.evidence) {
+          cell.appendChild(makeEl('p', 'evidence-footnote', stage.evidence));
+        }
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowHeroMoment(grid, data) {
+      grid.appendChild(makeLabelCell('Hero Moment'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--hero']);
+        const primaries = data.hmByPrimaryStage[stage.id] || [];
+        const adjacents = data.adjacentByStage[stage.id] || [];
+
+        if (primaries.length > 0) {
+          // Primary stage(s): full amber card — skip adjacents for this cell
+          primaries.forEach(function(hm) { cell.appendChild(buildFullHMCard(hm)); });
+        } else if (adjacents.length > 0) {
+          // Adjacent only: dashed pill(s)
+          adjacents.forEach(function(hm) { cell.appendChild(buildAdjacentPill(hm)); });
+        }
+        // else: empty cell
+
+        grid.appendChild(cell);
+      });
+    }
+
+    function buildMetricRow(m) {
+      const typeLC = (m.type || '').toLowerCase();
+      var typeClass = 'leading', tagClass = 'metric-type-tag--leading', tagText = 'Leading';
+      if (typeLC.indexOf('lagging') !== -1)     { typeClass = 'lagging'; tagClass = 'metric-type-tag--lagging'; tagText = 'Lagging'; }
+      if (typeLC.indexOf('operational') !== -1)  { typeClass = 'health';  tagClass = 'metric-type-tag--health';  tagText = 'Health'; }
+
+      const row = makeEl('div', 'metric-row metric-row--' + typeClass);
+      row.appendChild(makeEl('span', 'metric-type-tag ' + tagClass, tagText));
+      const info = makeEl('div');
+      info.appendChild(makeEl('div', 'metric-name', safe(m.metric)));
+      const meta = [m.source, m.cadence, m.owner].filter(Boolean).join(' \u00b7 ');
+      if (meta) info.appendChild(makeEl('div', 'metric-meta', meta));
+      row.appendChild(info);
+      return row;
+    }
+
+    function renderRowScorecard(grid, data) {
+      grid.appendChild(makeLabelCell('How we measure'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--scorecard']);
+        const primaries = data.hmByPrimaryStage[stage.id] || [];
+        if (primaries.length === 0) {
+          cell.appendChild(makeEl('p', 'no-hero-note', 'No dedicated Hero Moment \u2014 metrics via adjacent stage scorecards.'));
+        } else {
+          primaries.forEach(function(hm) {
+            const sc = data.scorecardByHM[hm.id];
+            if (!sc) return;
+            const stack = makeEl('div', 'scorecard-stack');
+            // Label for stage 5 which has two HMs
+            if (primaries.length > 1) {
+              stack.appendChild(makeEl('div', 'scorecard-hm-label', hm.icon + ' HM' + hm.id + ': ' + hm.title));
+            }
+            sc.metrics.forEach(function(m) { stack.appendChild(buildMetricRow(m)); });
+            if (sc.measurement_gaps) {
+              stack.appendChild(makeEl('p', 'scorecard-gap-note', '\u26a0 ' + sc.measurement_gaps));
+            }
+            cell.appendChild(stack);
+          });
+        }
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowMeasGap(grid, data) {
+      grid.appendChild(makeLabelCell('Measurement gaps'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--meas-gap']);
+        const primaries = data.hmByPrimaryStage[stage.id] || [];
+        primaries.forEach(function(hm) {
+          const sc = data.scorecardByHM[hm.id];
+          if (sc && sc.measurement_gaps) {
+            cell.appendChild(makeEl('div', 'meas-gap-box', sc.measurement_gaps));
+          }
+        });
+        grid.appendChild(cell);
+      });
+    }
+
+    function renderRowWorkshop(grid, data) {
+      grid.appendChild(makeLabelCell('Workshop questions'));
+      data.stages.forEach(function(stage) {
+        const cell = makeCell(['cell--workshop']);
+        const gaps = data.gapsByStage[stage.id] || [];
+        gaps.forEach(function(gap) {
+          const item = makeEl('div', 'workshop-gap-item');
+          item.appendChild(makeEl('div', 'workshop-gap-item__title', 'Q' + gap.id + ': ' + safe(gap.title)));
+          if (gap.detail) item.appendChild(makeEl('div', 'workshop-gap-item__detail', gap.detail));
+          cell.appendChild(item);
+        });
+        grid.appendChild(cell);
+      });
+    }
+
+    // ── GRID ORCHESTRATOR ─────────────────────────────────────────────
+    function renderGrid(data) {
+      const grid = document.getElementById('cjm-grid');
+      grid.innerHTML = '';
+      renderRowStageHeaders(grid, data);
+      renderRowCustomerSays(grid, data);
+      renderRowCompleteWhen(grid, data);
+      renderRowSuccess(grid, data);
+      renderRowOutcomes(grid, data);
+      renderRowHeroMoment(grid, data);
+      renderRowScorecard(grid, data);
+      renderRowMeasGap(grid, data);
+      renderRowWorkshop(grid, data);
+    }
+
+    // ── NAV PILLS ─────────────────────────────────────────────────────
+    function renderPills(hero_moments, containerId, compact) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      hero_moments.forEach(function(hm) {
+        const btn = makeEl('button', compact ? 'hm-pill hm-pill--compact' : 'hm-pill');
+        btn.setAttribute('aria-label', 'Jump to HM' + hm.id + ': ' + hm.title);
+        btn.appendChild(makeEl('span', null, hm.icon || ''));
+        btn.appendChild(makeEl('span', null, 'HM' + hm.id + ': ' + safe(hm.title)));
+        btn.addEventListener('click', function() { scrollToStage(hm.primary_stage, hm.id); });
+        container.appendChild(btn);
+      });
+    }
+
+    // ── PAGE HEADER ───────────────────────────────────────────────────
+    function renderPageHeader(meta, hero_moments) {
+      document.getElementById('meta-title').textContent    = safe(meta.title);
+      document.getElementById('meta-subtitle').textContent = safe(meta.subtitle);
+      const wtw = meta.where_to_win_theme;
+      document.getElementById('where-to-win-text').textContent = wtw ? wtw.trim() : '\u2014';
+      renderPills(hero_moments, 'hm-nav-pills', false);
+    }
+
+    // ── STICKY NAV ────────────────────────────────────────────────────
+    function initStickyNav(hero_moments) {
+      renderPills(hero_moments, 'sticky-hm-pills', true);
+      const header = document.getElementById('page-header');
+      const nav    = document.getElementById('sticky-nav');
+      const observer = new IntersectionObserver(function(entries) {
+        const show = !entries[0].isIntersecting;
+        nav.classList.toggle('visible', show);
+        nav.setAttribute('aria-hidden', String(!show));
+      }, { threshold: 0 });
+      observer.observe(header);
+    }
+
+    // ── SCROLL HINT ───────────────────────────────────────────────────
+    function initScrollHint() {
+      const canvas = document.getElementById('canvas-wrapper');
+      const hint   = document.getElementById('scroll-hint');
+      function onFirstScroll() {
+        hint.classList.add('hidden');
+        canvas.removeEventListener('scroll', onFirstScroll);
+      }
+      canvas.addEventListener('scroll', onFirstScroll, { passive: true });
+    }
+
+    // ── SCROLL TO STAGE ───────────────────────────────────────────────
+    function scrollToStage(stageId, hmId) {
+      const canvas = document.getElementById('canvas-wrapper');
+      const col    = document.getElementById('stage-col-' + stageId);
+      if (!col) return;
+      const labelWidth = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--label-width')
+      ) || 180;
+      canvas.scrollTo({ left: Math.max(0, col.offsetLeft - labelWidth), behavior: 'smooth' });
+      const card = document.getElementById('hm-card-' + hmId);
+      if (card) {
+        setTimeout(function() {
+          card.classList.remove('hm-card--flash');
+          void card.offsetWidth; // force reflow to restart animation
+          card.classList.add('hm-card--flash');
+        }, 350);
+      }
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────
+    async function init() {
+      try {
+        const raw  = await loadData();
+        const data = preprocessData(raw);
+        renderPageHeader(data.meta, data.hero_moments);
+        initStickyNav(data.hero_moments);
+        initScrollHint();
+        renderGrid(data);
+      } catch (err) {
+        document.body.innerHTML = [
+          '<div style="padding:48px;font-family:sans-serif;color:#8B1A4A;max-width:640px;margin:0 auto">',
+          '<h2 style="margin-bottom:14px">\u26a0 Failed to load framework data</h2>',
+          '<p style="margin-bottom:10px"><strong>' + err.message + '</strong></p>',
+          '<p style="color:#555;font-size:14px;line-height:1.6">',
+          'This page requires a local HTTP server. Run the following in the project directory:<br>',
+          '<code style="display:inline-block;margin-top:10px;padding:8px 14px;background:#f0f0f0;border-radius:6px;font-size:13px">',
+          'python3 -m http.server 8080',
+          '</code><br><br>',
+          'Then open <a href="http://localhost:8080" style="color:#8B1A4A">http://localhost:8080</a>.',
+          '</p></div>'
+        ].join('');
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
